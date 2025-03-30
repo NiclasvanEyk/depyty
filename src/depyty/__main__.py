@@ -1,4 +1,5 @@
 import sys
+
 from glob import glob
 from itertools import chain
 
@@ -29,7 +30,7 @@ def main():
         or "-h" in sys.argv
     ):
         print_usage()
-        exit(0)
+        exit(1)
 
     # Now, we'll check each of the given first-party packages to see what they
     # import, and if their imprts are properly declared.
@@ -41,6 +42,9 @@ def main():
     )
 
     ConsoleReporter().report(violations)
+
+    if len(violations) > 0:
+        exit(2)
 
 
 if __name__ == "__main__":
