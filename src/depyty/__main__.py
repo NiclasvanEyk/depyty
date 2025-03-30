@@ -1,3 +1,5 @@
+from os import getcwd
+from pathlib import Path
 import sys
 
 from glob import glob
@@ -41,7 +43,7 @@ def main():
         iter_source_files_with_context(source_packages, available_modules_by_name)
     )
 
-    ConsoleReporter().report(violations)
+    ConsoleReporter(Path(getcwd())).report(violations)
 
     if len(violations) > 0:
         exit(2)

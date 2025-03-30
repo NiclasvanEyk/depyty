@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - exit with code `2` when there are violations
+- display _relative_ paths to files when using the console reporter
 
 ## [0.1.1] - 2025-03-30
 
