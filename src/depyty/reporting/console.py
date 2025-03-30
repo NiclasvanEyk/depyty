@@ -1,7 +1,8 @@
+from itertools import groupby
 from typing import override
+
 from depyty.reporting import Reporter
 from depyty.source_file_checking import Violation
-from itertools import groupby
 
 
 class ConsoleReporter(Reporter):

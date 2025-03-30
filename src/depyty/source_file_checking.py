@@ -14,7 +14,7 @@ class Location:
     col: int
 
     def as_location_str(self) -> str:
-        return f"{str(self.file)}:{self.line}:{self.col}"
+        return f"{self.file!s}:{self.line}:{self.col}"
 
     @staticmethod
     def from_stmt(stmt: Import | ImportFrom, file: Path):

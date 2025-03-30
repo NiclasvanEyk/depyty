@@ -1,6 +1,6 @@
-from itertools import chain
 import sys
 from glob import glob
+from itertools import chain
 
 from depyty.environment import get_available_modules_by_name
 from depyty.reporting.console import ConsoleReporter
