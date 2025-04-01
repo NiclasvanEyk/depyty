@@ -2,6 +2,10 @@
 Analysis regarding the current python enviornment.
 
 What packages are installed, from which names, etc.
+
+NOTE: This file may not depend upon anything that is not available in the stdlib!
+      It is executed in the context of unknown Python environments, to check what
+      packages/modules are available in them.
 """
 
 import importlib.metadata
@@ -14,6 +18,7 @@ from dataclasses import dataclass
 from importlib.machinery import FileFinder
 from pathlib import Path
 from pkgutil import iter_modules
+from typing import Any
 
 
 def _get_stdlib_modules() -> set[str]:
@@ -36,7 +41,7 @@ def _get_stdlib_modules() -> set[str]:
     return stdlib_modules
 
 
-def build_module_to_distribution_map() -> dict[str, set[str]]:
+def _build_module_to_distribution_map() -> dict[str, set[str]]:
     module_map: defaultdict[str, set[str]] = defaultdict(set)
 
     for dist in importlib.metadata.distributions():
@@ -119,9 +124,26 @@ class Module:
 
     location: Path | None
 
+    def to_json_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "distribution_names": list(self.distribution_names),
+            "belongs_to_stdlib": self.belongs_to_stdlib,
+            "location": str(self.location) if self.location is not None else None,
+        }
+
+    @staticmethod
+    def from_json_dict(value: dict[str, Any]) -> "Module":
+        return Module(
+            name=str(value["name"]),
+            distribution_names=set(value["distribution_names"]),
+            belongs_to_stdlib=bool(value["belongs_to_stdlib"]),
+            location=Path(value["location"]) if value["location"] is not None else None,
+        )
+
 
 def get_available_modules_by_name() -> dict[str, Module]:
-    module_to_distribution_map = build_module_to_distribution_map()
+    module_to_distribution_map = _build_module_to_distribution_map()
     stdlib_modules = _get_stdlib_modules()
 
     return {
