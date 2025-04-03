@@ -2,7 +2,7 @@ from itertools import groupby
 from pathlib import Path
 from typing import override
 
-from depyty.reporting import Reporter
+from depyty.reporting.abstract import Reporter
 from depyty.source_file_checking import Location, Violation
 
 

@@ -1,12 +1,22 @@
-from abc import ABC, abstractmethod
+from enum import StrEnum
+from pathlib import Path
 
-from depyty.source_file_checking import Violation
-
-
-class Reporter(ABC):
-    @abstractmethod
-    def report(self, violations: list[Violation]) -> None:
-        pass
+from depyty.reporting.abstract import Reporter
+from depyty.reporting.console import ConsoleReporter
 
 
-__all__ = ["Reporter"]
+class ReporterName(StrEnum):
+    CONSOLE = "console"
+    GITLAB = "gitlab"
+
+
+def build_reporter(base: Path, name: ReporterName) -> Reporter:
+    if name == ReporterName.GITLAB:
+        from depyty.reporting.gitlab import GitLabReporter
+
+        return GitLabReporter(base)
+
+    return ConsoleReporter(base)
+
+
+__all__ = ["Reporter", "ReporterName", "build_reporter"]

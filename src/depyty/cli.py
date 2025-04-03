@@ -1,11 +1,14 @@
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from dataclasses import dataclass
 
+from depyty.reporting import ReporterName
+
 
 @dataclass
 class Cli:
     pyproject_globs: list[str]
     python_path: str | None
+    reporter: ReporterName
     verbose: bool
 
 
@@ -34,6 +37,11 @@ Inspect a uv workspace where you place all modules under a packages/ directory:
         help="path to a python interpreter (e.g. .venv/bin/python), that should be inspected instead of using the currently active one. Example: .venv/bin/python for uv-managed virtual environments",
     )
     _ = parser.add_argument(
+        "--reporter",
+        help=f"how the results should be reported. Possible values: {list(ReporterName)}",
+        default=ReporterName.CONSOLE.value,
+    )
+    _ = parser.add_argument(
         "--verbose",
         "-v",
         help="get more logging output.",
@@ -47,4 +55,5 @@ Inspect a uv workspace where you place all modules under a packages/ directory:
         pyproject_globs=args.pyproject_globs,
         python_path=args.python,
         verbose=args.verbose,
+        reporter=ReporterName(args.reporter),
     )

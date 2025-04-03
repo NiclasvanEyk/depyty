@@ -9,7 +9,7 @@ from depyty.cli import Cli, parse_cli_args
 from depyty.environment import get_available_modules_by_name
 from depyty.environment_standalone import get_available_modules_by_name_standalone
 from depyty.logging import setup_cli_logging
-from depyty.reporting.console import ConsoleReporter
+from depyty.reporting import build_reporter
 from depyty.source_file_checking import check_source_files
 from depyty.source_file_collection import parse_source_packages
 from depyty.source_file_module_mapping import iter_source_files_with_context
@@ -46,7 +46,8 @@ def main(cli: Cli | None = None):
         )
         violations = check_source_files(source_files)
 
-        ConsoleReporter(Path(getcwd())).report(violations)
+        reporter = build_reporter(Path(getcwd()), cli.reporter)
+        reporter.report(violations)
 
         if len(violations) > 0:
             exit(2)

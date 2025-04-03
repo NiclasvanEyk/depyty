@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `--python` flag to inspect a Python environment other than the current one
 - `--verbose` flag for more extensive output and debugging information
+- `--reporter` flag for more configuring the output format
+- GitLab Code Quality reporter
 - a proper commandline interface using `argparse`
 
 ### Changed
