@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `--pyhon` flag to inspect a Python environment other than the current one
+- a proper commandline interface using `argparse`
+
 ### Changed
 
 - exit with code `2` when there are violations
@@ -16,5 +21,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial proof of concept
+- initial proof of concept
 
