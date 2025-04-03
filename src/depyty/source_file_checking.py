@@ -1,3 +1,4 @@
+import logging
 from ast import Import, ImportFrom, Module, parse, walk
 from collections.abc import Iterator
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -72,6 +73,7 @@ def _iterate_imports(ast: Module, file: Path):
 def _check_source_file(file: SourceFileWithContext) -> list[Violation]:
     violations: list[Violation] = []
 
+    logging.debug(f"Checking {file.path}")
     contents = file.path.read_text()
     ast = parse(contents)
 
@@ -106,6 +108,9 @@ def check_source_files(
         violations_by_file = [
             executor.submit(_check_source_file, file) for file in source_files
         ]
+
+        if len(violations_by_file) == 0:
+            raise Exception("No files analyzed")
 
         for future in violations_by_file:
             violations.extend(future.result())

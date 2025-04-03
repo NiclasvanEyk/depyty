@@ -1,3 +1,4 @@
+import logging
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
@@ -29,13 +30,15 @@ def iter_source_files_with_context(
             if package.distribution_name in m.distribution_names
         ]
         if len(modules) < 1:
-            raise Exception(
+            logging.warning(
                 f"Package '{package.distribution_name}' not found in environment"
             )
+            continue
         if len(modules) > 1:
-            raise Exception(
+            logging.warning(
                 f"Package '{package.distribution_name}' found in environment multiple times (not supported atm)"
             )
+            continue
 
         module = modules[0]
 

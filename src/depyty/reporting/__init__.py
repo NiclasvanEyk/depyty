@@ -7,3 +7,6 @@ class Reporter(ABC):
     @abstractmethod
     def report(self, violations: list[Violation]) -> None:
         pass
+
+
+__all__ = ["Reporter"]

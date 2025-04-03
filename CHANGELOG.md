@@ -9,13 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `--pyhon` flag to inspect a Python environment other than the current one
+- `--python` flag to inspect a Python environment other than the current one
+- `--verbose` flag for more extensive output and debugging information
 - a proper commandline interface using `argparse`
 
 ### Changed
 
 - exit with code `2` when there are violations
 - display _relative_ paths to files when using the console reporter
+- Packages not found in the environment are now skipped, instead of directly throwing an error
+- If no source files were analyzed, the analysis is treated as failed
+- console reporter prints clearer messages
 
 ## [0.1.1] - 2025-03-30
 

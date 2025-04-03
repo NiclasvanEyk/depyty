@@ -6,6 +6,7 @@ from dataclasses import dataclass
 class Cli:
     pyproject_globs: list[str]
     python_path: str | None
+    verbose: bool
 
 
 def parse_cli_args() -> Cli:
@@ -32,7 +33,18 @@ Inspect a uv workspace where you place all modules under a packages/ directory:
         "--python",
         help="path to a python interpreter (e.g. .venv/bin/python), that should be inspected instead of using the currently active one. Example: .venv/bin/python for uv-managed virtual environments",
     )
+    _ = parser.add_argument(
+        "--verbose",
+        "-v",
+        help="get more logging output.",
+        action="store_true",
+        default=False,
+    )
 
     args = parser.parse_args()
 
-    return Cli(pyproject_globs=args.pyproject_globs, python_path=args.python)
+    return Cli(
+        pyproject_globs=args.pyproject_globs,
+        python_path=args.python,
+        verbose=args.verbose,
+    )
