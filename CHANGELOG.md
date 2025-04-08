@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--reporter` flag for more configuring the output format
 - GitLab Code Quality reporter
 - a proper commandline interface using `argparse`
+- automatic configuration detection when using a `uv` workspace
 
 ### Changed
 
