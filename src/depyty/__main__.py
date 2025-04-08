@@ -1,10 +1,10 @@
 import logging
 from glob import glob
 from itertools import chain
-from os import getcwd
 from pathlib import Path
 from sys import executable
 
+from depyty.autoconf import autoconf
 from depyty.cli import Cli, parse_cli_args
 from depyty.environment import get_available_modules_by_name
 from depyty.environment_standalone import get_available_modules_by_name_standalone
@@ -19,23 +19,44 @@ def main(cli: Cli | None = None):
     if cli is None:
         cli = parse_cli_args()
 
-    setup_cli_logging(cli.verbose)
+    setup_cli_logging(cli.args.verbose)
+    cwd = Path.cwd()
 
+    inferred_config = autoconf(cwd)
     try:
         # First we inspect the environment, to see what packages are installed.
-        if cli.python_path is None:
-            logging.debug(f"Using Python interpreter at {executable}")
-            available_modules = get_available_modules_by_name()
-        else:
-            logging.debug(f"Using Python interpreter at {cli.python_path}")
-            available_modules = get_available_modules_by_name_standalone(
-                cli.python_path
+        python_path = cli.args.python_path
+        if not python_path and inferred_config and inferred_config.python:
+            python_path = inferred_config.python
+            logging.debug(
+                f"Using detected Python interpreter from {inferred_config.origin} at {python_path}"
             )
+        if python_path:
+            available_modules = get_available_modules_by_name_standalone(python_path)
+        else:
+            logging.debug(f"Using current Python interpreter at {executable}")
+            available_modules = get_available_modules_by_name()
         logging.debug(f"Found {len(available_modules)} modules in the environment")
 
         # Now, we'll check each of the given first-party packages to see what they
         # import, and if their imprts are properly declared.
-        globs = chain(*(glob(pyproject_glob) for pyproject_glob in cli.pyproject_globs))
+        raw_globs = cli.args.pyproject_globs
+        if not raw_globs and inferred_config and inferred_config.globs:
+            raw_globs = inferred_config.globs
+            logging.debug(
+                f"Using {len(raw_globs)} detected globs from {inferred_config.origin}"
+            )
+        if not raw_globs:
+            cli.parser.print_usage()
+            exit(1)
+        globs = chain(
+            *(
+                glob(f"{pyproject_glob}/pyproject.toml")
+                if not pyproject_glob.endswith("pyproject.toml")
+                else pyproject_glob
+                for pyproject_glob in raw_globs
+            )
+        )
         source_packages = parse_source_packages(globs)
         logging.debug(
             f"Found the following source packages: {', '.join(package.distribution_name for package in source_packages)}"
@@ -46,13 +67,13 @@ def main(cli: Cli | None = None):
         )
         violations = check_source_files(source_files)
 
-        reporter = build_reporter(Path(getcwd()), cli.reporter)
+        reporter = build_reporter(cwd, cli.args.reporter)
         reporter.report(violations)
 
         if len(violations) > 0:
             exit(2)
     except Exception as exception:
-        if cli.verbose:
+        if cli.args.verbose:
             raise
         else:
             logging.error(str(exception))

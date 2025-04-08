@@ -15,7 +15,7 @@ uv add --dev depyty
 then run it via
 
 ```shell
-uv run depyty "packages/*/pyproject.toml"
+uv run depyty "packages/*"
 ```
 
 You can pass `glob.glob` strings that lead to all `pyproject.toml` files in your repository that you want to check.
@@ -167,7 +167,7 @@ It analyzes the packages available in the current environment, and checks the so
 To prevent an error like this, we'd just need to add
 
 ```shell
-uv run depyty "lambdas/*/pyproject.toml" "pyproject.toml"
+uv run depyty "lambdas/*" "."
 ```
 
 to our CI and we should not get nasty surprises when deploying the next time.

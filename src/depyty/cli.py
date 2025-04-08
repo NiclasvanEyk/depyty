@@ -5,11 +5,17 @@ from depyty.reporting import ReporterName
 
 
 @dataclass
-class Cli:
+class CliArgs:
     pyproject_globs: list[str]
     python_path: str | None
     reporter: ReporterName
     verbose: bool
+
+
+@dataclass
+class Cli:
+    args: CliArgs
+    parser: ArgumentParser
 
 
 def parse_cli_args() -> Cli:
@@ -21,16 +27,15 @@ Inspect the current project using the current Python interpreter:
     depyty pyproject.toml
        
 Inspect a uv workspace where you place all modules under a packages/ directory:
-    depyty --python=.venv/bin/python "packages/*/pyproject.toml"
+    depyty --python=.venv/bin/python "packages/*"
 """,
         formatter_class=RawDescriptionHelpFormatter,
     )
 
     _ = parser.add_argument(
         "pyproject_globs",
-        help="one or more glob patterns to your pyproject.toml files. Example: packages/**/pyproject.toml",
-        nargs="+",
-        default=["pyproject.toml"],
+        help="one or more glob patterns to your folders containing pyproject.toml files. Example: packages/**",
+        nargs="*",
     )
     _ = parser.add_argument(
         "--python",
@@ -52,8 +57,11 @@ Inspect a uv workspace where you place all modules under a packages/ directory:
     args = parser.parse_args()
 
     return Cli(
-        pyproject_globs=args.pyproject_globs,
-        python_path=args.python,
-        verbose=args.verbose,
-        reporter=ReporterName(args.reporter),
+        args=CliArgs(
+            pyproject_globs=args.pyproject_globs,
+            python_path=args.python,
+            verbose=args.verbose,
+            reporter=ReporterName(args.reporter),
+        ),
+        parser=parser,
     )
