@@ -1,12 +1,10 @@
 [project]
 name = "depyty"
-version = "0.1.1"
+version = "0.2.0"
 description = "Enforce proper dependency declaration in shared Python environments"
 readme = "README.md"
 license = { file = "LICENSE.md" }
-authors = [
-    { name = "Niclas van Eyk", email = "niclas.eyk@gmail.com" }
-]
+authors = [{ name = "Niclas van Eyk", email = "niclas.eyk@gmail.com" }]
 requires-python = ">=3.13"
 dependencies = ["packaging>=24.2"]
 classifiers = [
@@ -35,11 +33,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = [
-    "mypy>=1.15.0",
-    "pytest>=8.3.5",
-    "ruff>=0.11.2",
-]
+dev = ["mypy>=1.15.0", "pytest>=8.3.5", "ruff>=0.11.2"]
 
 [tool.ruff.lint]
 extend-select = ["I", "RUF", "UP", "FURB"]
