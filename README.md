@@ -61,6 +61,11 @@ However, since **you** imported it in your code, you'll likely also depend on Py
 If they decide to publish a breaking change, and FastAPI increments their minimum Pydantic version to the new one, your code can easily break.
 By explicitly declaring a version and dependency upon `pydantic` in your `pyproject.toml`, you are in full control.
 
+## Assumptions
+
+- You develop a modern, `pyproject.toml`-based Python application/library/monorepo, and not a one-off script
+- You install all third-party dependencies in a [virtual Python environment](https://virtualenv.pypa.io/en/latest/user_guide.html)
+
 ## Motivation
 
 Tools like [`uv`](https://docs.astral.sh/uv) make it very convenient to create monorepos.

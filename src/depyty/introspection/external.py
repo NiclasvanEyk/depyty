@@ -2,14 +2,14 @@ import json
 from inspect import getsource
 from subprocess import run
 
-from depyty import environment
-from depyty.environment import Module
+from depyty.introspection import script as script_module
+from depyty.introspection.script import Module
 
 
 def get_available_modules_by_name_standalone(
     python_path: str,
 ) -> dict[str, Module]:
-    script = getsource(environment)
+    script = getsource(script_module)
     script += "\n\n"
     script += "import json"
     script += "\n\n"

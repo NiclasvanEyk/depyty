@@ -1,6 +1,6 @@
 import json
 
-from depyty.environment import Module
+from depyty.introspection.script import Module
 
 
 def test_modules_are_serializable() -> None:

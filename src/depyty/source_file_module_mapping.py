@@ -3,7 +3,7 @@ import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
-from depyty.environment import Module
+from depyty.introspection.script import Module
 from depyty.source_file_collection import SourceProject
 
 
