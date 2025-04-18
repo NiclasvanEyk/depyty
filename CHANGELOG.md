@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `depyty env` subcommand to print information about the Python environment
+
+### Changed
+
+- Analyzing files is now done using a separate `depyty analyze` subcommand
+- Analysis now works on a "fully qualified" basis. Before we only checked
+  top-level names of modules, which had limitiations, e.g. it did not work
+  reliably for namespace packages.
+
 ## [0.2.0] - 2025-04-12
 
 ### Added

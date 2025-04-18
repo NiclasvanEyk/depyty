@@ -1,9 +1,9 @@
 import logging
-import warnings
+from collections.abc import Collection
 from dataclasses import dataclass
 from pathlib import Path
 
-from depyty.introspection.script import Module
+from depyty.inspection.dist_info import PythonModule
 from depyty.source_file_collection import SourceProject
 
 
@@ -12,49 +12,42 @@ class SourceFileWithContext:
     path: Path
     module: str
     distribution_name: str
-    declared_dependencies: set[str]
-    stdlib_modules: set[str]
+    declared_dependencies: Collection[str]
+    top_level_stdlib_modules: Collection[str]
+    dependency_modules: Collection[str]
 
 
 def iter_source_files_with_context(
-    source_packages: list[SourceProject], available_modules_by_name: dict[str, Module]
+    source_project: list[SourceProject],
+    stdlib_modules: Collection[str],
+    modules_by_distribution_name: dict[str, list[PythonModule]],
 ):
-    stdlib_modules: set[str] = {
-        m.name for m in available_modules_by_name.values() if m.belongs_to_stdlib
-    }
-
-    for package in source_packages:
-        modules = [
-            m
-            for m in available_modules_by_name.values()
-            if package.distribution_name in m.distribution_names
-        ]
+    for project in source_project:
+        modules = modules_by_distribution_name.get(project.distribution_name, [])
         if len(modules) < 1:
             logging.warning(
-                f"Package '{package.distribution_name}' not found in environment"
-            )
-            continue
-        if len(modules) > 1:
-            logging.warning(
-                f"Package '{package.distribution_name}' found in environment multiple times (not supported atm)"
+                f"Package '{project.distribution_name}' not found in environment"
             )
             continue
 
-        module = modules[0]
+        # A module has access to all modules in its distribution package...
+        dependency_modules = {module.module for module in modules}
 
-        location = module.location
-        if location is None:
-            warnings.warn(
-                f"Cannot find source file location for module '{module.name}' belonging to package '{package.distribution_name}'. Skipping..."
+        # ... as well as all dependencies the project declares.
+        for dependency in project.dependencies:
+            dependency_modules.update(
+                {
+                    module.module
+                    for module in modules_by_distribution_name.get(dependency, [])
+                }
             )
-            continue
 
-        base = location / module.name
-        for source_file in base.rglob("*.py"):
+        for module in modules:
             yield SourceFileWithContext(
-                path=base / source_file,
-                distribution_name=package.distribution_name,
-                declared_dependencies=package.dependencies,
-                module=module.name,
-                stdlib_modules=stdlib_modules,
+                path=module.file,
+                distribution_name=project.distribution_name,
+                declared_dependencies=project.dependencies,
+                module=module.module,
+                top_level_stdlib_modules=stdlib_modules,
+                dependency_modules=dependency_modules,
             )

@@ -1,3 +1,7 @@
+"""
+Small wrapper around the `dict` returned from parsing a `pyproject.toml` file.
+"""
+
 import tomllib
 from functools import cached_property
 from typing import Any

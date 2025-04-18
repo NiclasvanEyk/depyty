@@ -1,3 +1,22 @@
+"""
+Analysis can happen either for the current Python interpreter (default), but
+when running `depyty` as a tool, it is likely that it gets its own isolated
+environment, to not create conflicts with the applications dependency. This is
+usually done using [`uvx`/`uv tool`](https://docs.astral.sh/uv/concepts/tools/)
+or [`pipx`](https://pipx.pypa.io).
+
+In these scenarios, it can be cumbersome to specify everything manually,
+especially, since there might already be configuration that defines e.g. where
+to find source files, or the project uses a very popular layout, e.g. having a
+virtual environment at `.venv/`.
+
+In 99.9% of the cases where there is a `.venv/` folder present in the current
+working directory, the user is going to use the Python interpreter at
+`.venv/bin/python`, so we'll automatically choose it instead.
+
+This module contains the necessary functionality for this detection.
+"""
+
 import logging
 import tomllib
 from dataclasses import dataclass

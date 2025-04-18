@@ -9,9 +9,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from depyty.cli.commands import SubCommand, commands
+from depyty.cli.commands import SubCommand, get_command_classes
+from depyty.cli.context import CliContext
 from depyty.cli.framework import add_subcommand
-from depyty.cli.globals import CliContext
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -33,7 +33,7 @@ def _build_cli_parser() -> ArgumentParser:
         epilog="""Examples:
 Inspect the current project using the current Python interpreter:
     depyty pyproject.toml
-       
+
 Inspect a uv workspace where you place all modules under a packages/ directory:
     depyty --python=.venv/bin/python "packages/*"
 """,
@@ -49,7 +49,7 @@ Inspect a uv workspace where you place all modules under a packages/ directory:
     )
 
     subcommands = parser.add_subparsers(title="commands", dest="command", required=True)
-    for command in commands():
+    for command in get_command_classes():
         add_subcommand(subcommands, command)
 
     return parser
@@ -60,7 +60,7 @@ def _parse_command(args: Namespace) -> SubCommand:
     if not isinstance(name, str):
         raise ValueError("Please provide a command name")
 
-    for command in commands():
+    for command in get_command_classes():
         if command.name == name:
             return command.from_namespace(args)
 

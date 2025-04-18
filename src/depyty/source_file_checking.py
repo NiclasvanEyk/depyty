@@ -39,13 +39,6 @@ class Violation:
     undeclared_dependency: str
 
 
-def _get_module_from_import_path(import_path: str) -> str:
-    name = import_path
-    if "." in name:
-        name = name.split(".")[0]
-    return name
-
-
 @dataclass(frozen=True, slots=True)
 class ModuleImport:
     location: Location
@@ -53,11 +46,12 @@ class ModuleImport:
 
 
 def _iterate_imports(ast: Module, file: Path):
+    # TODO: Skip relative imports
     for node in walk(ast):
         if isinstance(node, Import):
             for alias in node.names:
                 yield ModuleImport(
-                    module=_get_module_from_import_path(alias.name),
+                    module=alias.name,
                     location=Location.from_stmt(node, file),
                 )
         if isinstance(node, ImportFrom):
@@ -65,7 +59,7 @@ def _iterate_imports(ast: Module, file: Path):
                 # this happens for 'from . import xyz', which we don't really care about atm
                 continue
             yield ModuleImport(
-                module=_get_module_from_import_path(node.module),
+                module=node.module,
                 location=Location.from_stmt(node, file),
             )
 
@@ -81,10 +75,16 @@ def _check_source_file(file: SourceFileWithContext) -> list[Violation]:
         if imported_module.module == file.module:
             continue
 
-        if imported_module.module in file.stdlib_modules:
+        if imported_module.module in file.top_level_stdlib_modules:
             continue
 
-        if imported_module.module in file.declared_dependencies:
+        paths = imported_module.module.split(".")
+        if len(paths) > 1:
+            top_level_module = paths[0]
+            if top_level_module in file.top_level_stdlib_modules:
+                continue
+
+        if imported_module.module in file.dependency_modules:
             continue
 
         violations.append(
@@ -102,17 +102,16 @@ def _check_source_file(file: SourceFileWithContext) -> list[Violation]:
 
 def check_source_files(
     source_files: Iterator[SourceFileWithContext],
-) -> list[Violation]:
+) -> tuple[list[Violation], int]:
     violations: list[Violation] = []
+    analyzed_files = 0
     with ThreadPoolExecutor() as executor:
         violations_by_file = [
             executor.submit(_check_source_file, file) for file in source_files
         ]
 
-        if len(violations_by_file) == 0:
-            raise Exception("No files analyzed")
-
         for future in violations_by_file:
+            analyzed_files += 1
             violations.extend(future.result())
 
-    return violations
+    return violations, analyzed_files

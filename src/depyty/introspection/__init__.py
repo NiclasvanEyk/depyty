@@ -9,10 +9,10 @@ Compared to the `depyty.inspection` module, this does execute code in the
 context of the Python environment.
 """
 
-from depyty.introspection.external import get_available_modules_by_name_standalone
-from depyty.introspection.script import get_available_modules_by_name
+from depyty.introspection.external import introspect
+from depyty.introspection.script import introspect_current_environment
 
 __all__ = [
-    "get_available_modules_by_name",
-    "get_available_modules_by_name_standalone",
+    "introspect",
+    "introspect_current_environment",
 ]

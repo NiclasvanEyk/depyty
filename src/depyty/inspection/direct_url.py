@@ -1,14 +1,15 @@
 import json
 from pathlib import Path
 
+from depyty.inspection.dist_info import PythonModule
 from depyty.inspection.modules import filesystem_path_to_module_path
 
 
-def direct_url_to_module_list(direct_url_file: Path, pths: list[Path]) -> list[str]:
-    modules: list[str] = []
-
+def direct_url_to_module_list(
+    direct_url_file: Path, pths: list[Path]
+) -> list[PythonModule] | None:
     if not (direct_url_file.exists() and direct_url_file.is_file()):
-        return modules
+        return None
 
     metadata = json.loads(direct_url_file.read_text())
     if not isinstance(metadata, dict):
@@ -25,12 +26,17 @@ def direct_url_to_module_list(direct_url_file: Path, pths: list[Path]) -> list[s
     if not direct_url.startswith("file://"):
         raise Exception("depyty currently only supports file://-based direct urls")
 
+    modules: list[PythonModule] = []
     distribution_directory = Path(direct_url.removeprefix("file://"))
     for pth in pths:
         if pth.is_relative_to(distribution_directory):
             for source_file in pth.rglob("*.py"):
                 relative_path = source_file.relative_to(pth)
-                module_path = filesystem_path_to_module_path(relative_path)
-                modules.append(module_path)
+                modules.append(
+                    PythonModule(
+                        module=filesystem_path_to_module_path(relative_path),
+                        file=source_file,
+                    )
+                )
 
     return modules

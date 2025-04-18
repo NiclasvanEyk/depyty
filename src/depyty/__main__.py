@@ -2,21 +2,27 @@ import logging
 
 from depyty.cli.commands import SubCommand
 from depyty.cli.definition import Cli, parse_cli_args
-from depyty.cli.errors import PrintUsage
+from depyty.cli.framework import PrintUsage
 from depyty.logging import setup_cli_logging
 
 
 def main(cli: Cli[SubCommand] | None = None):
+    """
+    The main entrypoint. This is what gets run when you execute `depyty`.
+    """
     if cli is None:
         cli = parse_cli_args()
 
     setup_cli_logging(cli.args.context.verbose)
 
     try:
-        cli.args.command.run(
+        exit_code = cli.args.command.run(
             cli.args.command,  # type: ignore
             cli.args.context,
         )
+
+        if isinstance(exit_code, int):
+            exit(exit_code)
     except PrintUsage:
         cli.parser.print_usage()
         exit(1)

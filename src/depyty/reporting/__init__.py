@@ -1,3 +1,15 @@
+"""
+Defines the interfaces and available formats for reporting analysis results.
+
+Each specific report format (e.g. `gitlab`) has its own submodule. This way, we
+can easily install and import it only when specifically requested. This in turn
+enables us installing these as [extras / `optional-dependencies`](https://packaging.python.org/en/latest/specifications/dependency-specifiers/#extras).
+Some users will install `depyty` as a dev-dependency, which e.g. in `uv`
+monorepos means, that the dependencies can conflict with other runtime
+dependencies to have as little conflicts as possible, we try to require the
+smallest possible set of dependencies by default.
+"""
+
 from enum import StrEnum
 from pathlib import Path
 

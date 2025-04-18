@@ -1,3 +1,8 @@
+"""
+Utilities for replicating some of [`uv`](https://docs.astral.sh/uv)s behavior
+and parsing its config.
+"""
+
 import fnmatch
 from typing import Any, cast
 
