@@ -19,6 +19,7 @@ from depyty.reporting.console import ConsoleReporter
 
 class ReporterName(StrEnum):
     CONSOLE = "console"
+    JSON = "json"
     GITLAB = "gitlab"
 
 
@@ -27,6 +28,11 @@ def build_reporter(base: Path, name: ReporterName) -> Reporter:
         from depyty.reporting.gitlab import GitLabReporter
 
         return GitLabReporter(base)
+
+    if name == ReporterName.JSON:
+        from depyty.reporting.json import JsonReporter
+
+        return JsonReporter()
 
     return ConsoleReporter(base)
 

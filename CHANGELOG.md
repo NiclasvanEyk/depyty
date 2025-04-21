@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `depyty env` subcommand to print information about the Python environment
+- JSON reports using `--reporter=json` 
 
 ### Changed
 
