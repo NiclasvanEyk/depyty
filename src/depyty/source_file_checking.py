@@ -5,6 +5,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 
+from depyty.inspection.dist_info import PythonModule
 from depyty.source_file_module_mapping import SourceFileWithContext
 
 
@@ -37,6 +38,7 @@ class Violation:
     context: Context
     location: Location
     undeclared_dependency: str
+    installation_suggestion: str | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -64,7 +66,10 @@ def _iterate_imports(ast: Module, file: Path):
             )
 
 
-def _check_source_file(file: SourceFileWithContext) -> list[Violation]:
+def _check_source_file(
+    file: SourceFileWithContext,
+    modules_by_distribution_name: dict[str, list[PythonModule]],
+) -> list[Violation]:
     violations: list[Violation] = []
 
     logging.debug(f"Checking {file.path}")
@@ -87,13 +92,22 @@ def _check_source_file(file: SourceFileWithContext) -> list[Violation]:
         if imported_module.module in file.dependency_modules:
             continue
 
+        undeclared_dependency = imported_module.module
+        installation_suggestion = None
+        for distribution_name, modules in modules_by_distribution_name.items():
+            for entry in modules:
+                if undeclared_dependency == entry.module:
+                    installation_suggestion = distribution_name
+                    break
+
         violations.append(
             Violation(
                 context=Context(
                     distribution_name=file.distribution_name, module=file.module
                 ),
                 location=imported_module.location,
-                undeclared_dependency=imported_module.module,
+                undeclared_dependency=undeclared_dependency,
+                installation_suggestion=installation_suggestion,
             )
         )
 
@@ -102,16 +116,23 @@ def _check_source_file(file: SourceFileWithContext) -> list[Violation]:
 
 def check_source_files(
     source_files: Iterator[SourceFileWithContext],
+    modules_by_distribution_name: dict[str, list[PythonModule]],
 ) -> tuple[list[Violation], int]:
     violations: list[Violation] = []
     analyzed_files = 0
     with ThreadPoolExecutor() as executor:
-        violations_by_file = [
-            executor.submit(_check_source_file, file) for file in source_files
-        ]
+        violations_by_file = {
+            file.path: executor.submit(
+                _check_source_file, file, modules_by_distribution_name
+            )
+            for file in source_files
+        }
 
-        for future in violations_by_file:
+        for file, future in violations_by_file.items():
             analyzed_files += 1
-            violations.extend(future.result())
+            try:
+                violations.extend(future.result())
+            except Exception as exception:
+                logging.exception(f"{file}: {exception}", exc_info=exception)
 
     return violations, analyzed_files

@@ -5,8 +5,7 @@ from depyty.source_file_checking import Violation
 
 class Reporter(ABC):
     @abstractmethod
-    def report(self, violations: list[Violation]) -> None:
-        pass
+    def report(self, violations: list[Violation]) -> None: ...
 
 
 __all__ = ["Reporter"]

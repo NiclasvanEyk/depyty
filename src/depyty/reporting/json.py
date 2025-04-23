@@ -1,11 +1,18 @@
 import json
-from typing import override
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, override
 
 from depyty.reporting.abstract import Reporter
 from depyty.source_file_checking import Violation
 
+if TYPE_CHECKING:
+    from _typeshed import SupportsWrite
 
+
+@dataclass
 class JsonReporter(Reporter):
+    stdout: "SupportsWrite | None" = field(default_factory=lambda: None)
+
     @override
     def report(self, violations: list[Violation]) -> None:
         print(
@@ -27,5 +34,6 @@ class JsonReporter(Reporter):
                     for violation in violations
                 ],
                 indent=4,
-            )
+            ),
+            file=self.stdout,
         )

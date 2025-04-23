@@ -12,9 +12,13 @@ smallest possible set of dependencies by default.
 
 from enum import StrEnum
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from depyty.reporting.abstract import Reporter
 from depyty.reporting.console import ConsoleReporter
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsWrite
 
 
 class ReporterName(StrEnum):
@@ -23,7 +27,9 @@ class ReporterName(StrEnum):
     GITLAB = "gitlab"
 
 
-def build_reporter(base: Path, name: ReporterName) -> Reporter:
+def build_reporter(
+    base: Path, name: ReporterName, stdout: "SupportsWrite[str] | None"
+) -> Reporter:
     if name == ReporterName.GITLAB:
         from depyty.reporting.gitlab import GitLabReporter
 
@@ -32,7 +38,7 @@ def build_reporter(base: Path, name: ReporterName) -> Reporter:
     if name == ReporterName.JSON:
         from depyty.reporting.json import JsonReporter
 
-        return JsonReporter()
+        return JsonReporter(stdout=stdout)
 
     return ConsoleReporter(base)
 

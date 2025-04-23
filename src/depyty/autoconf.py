@@ -49,12 +49,14 @@ def _uv(path: Path) -> InferredConfiguration | None:
     if not pyproject_path.exists():
         return None
 
-    pyproject = tomllib.loads(pyproject_path.read_text())
+    pyproject = tomllib.loads(pyproject_path.read_text("utf-8"))
     member_globs = get_uv_workspace_member_globs(pyproject)
     default_venv_path = path / ".venv/bin/python"
 
+    logging.debug(f"using member globds {member_globs}")
+
     return InferredConfiguration(
-        globs=member_globs or [],
+        globs=[str(path / g) for g in member_globs] if member_globs else [],
         python=str(default_venv_path) if default_venv_path.exists() else None,
         origin="uv",
     )

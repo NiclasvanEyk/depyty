@@ -1,4 +1,4 @@
-from itertools import groupby
+from collections import defaultdict
 from pathlib import Path
 from typing import override
 
@@ -12,22 +12,32 @@ class ConsoleReporter(Reporter):
 
     @override
     def report(self, violations: list[Violation]) -> None:
-        for distribution_name, grouped_violations in groupby(
-            violations, key=lambda v: v.context.distribution_name
-        ):
-            print(f"{bold(distribution_name)} is missing")
+        grouped: defaultdict[str, defaultdict[str, list[Violation]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
 
-            for undeclared_dependency, occurrences in groupby(
-                grouped_violations, key=lambda v: v.undeclared_dependency
-            ):
+        for violation in violations:
+            grouped[violation.context.distribution_name][
+                violation.undeclared_dependency
+            ].append(violation)
+
+        for distribution_name in sorted(grouped.keys()):
+            v = grouped[distribution_name]
+            print(f"{bold(distribution_name)} is missing")
+            for undeclared_dependency in sorted(v.keys()):
                 print(f"\t{bold(undeclared_dependency)} which is imported in")
-                for occurrence in occurrences:
+                for occurrence in v[undeclared_dependency]:
                     relative_location = Location(
                         file=occurrence.location.file.relative_to(self.base),
                         line=occurrence.location.line,
                         col=occurrence.location.col,
                     )
                     print(f"\t\t{relative_location.as_location_str()}")
+                s = occurrence.installation_suggestion
+                if s:
+                    print(
+                        f"\t\tHINT: This can be fixed by explicitly declaring {bold(s)} as a dependency"
+                    )
 
 
 def bold(text: str) -> str:

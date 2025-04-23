@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Collection, Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,13 +25,15 @@ def discover_source_packages(
 ) -> list[SourceProject]:
     source_projects: list[SourceProject] = []
     for pyproject_path in source_package_project_toml_paths:
+        logging.debug(f"Checking {pyproject_path}")
         pyproject = PyprojectToml.from_file(pyproject_path)
         distribution_name = pyproject.project_name
         dependencies = Dependencies.from_pyproject_toml(pyproject)
 
         modules = modules_by_distribution_name.get(distribution_name)
         if modules is None:
-            raise Exception(f"Could not find source files for '{distribution_name}'")
+            logging.error(f"Could not find source files for '{distribution_name}'")
+            continue
 
         source_projects.append(
             SourceProject(

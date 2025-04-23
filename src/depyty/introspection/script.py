@@ -37,6 +37,6 @@ def introspect_current_environment() -> IntrospectionResult:
     )
 
 
-def print_serialized_introspection_result() -> None:
+def print_serialized_introspection_result(file=None) -> None:
     """This is what used when introspecting another env"""
-    print(json.dumps(introspect_current_environment()))
+    print(json.dumps(introspect_current_environment()), file=file)

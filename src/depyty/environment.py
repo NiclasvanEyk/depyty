@@ -102,6 +102,8 @@ def _get_project_sources(
     if not raw_globs:
         raise PrintUsage()
 
+    logging.debug(f"Using globs: {raw_globs}")
+
     globs = chain(
         *(
             glob(f"{pyproject_glob}/pyproject.toml")
