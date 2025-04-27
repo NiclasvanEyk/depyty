@@ -15,10 +15,10 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class AnalyzeCommand(Command):
+class CheckCommand(Command):
     """Analyzes the current or given python environment, and reports undeclared imports in the given source files."""
 
-    name: ClassVar[str] = "analyze"
+    name: ClassVar[str] = "check"
 
     globs: list[str]
     python_path: str | None
@@ -76,7 +76,7 @@ class AnalyzeCommand(Command):
             environment.modules_by_distribution_name,
         )
         if checked_files < 1:
-            logging.error("No files analyzed")
+            logging.error("No files checked")
             return 2
 
         reporter = build_reporter(context.cwd, args.reporter, args.stdout)

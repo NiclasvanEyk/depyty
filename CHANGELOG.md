@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Analyzing files is now done using a separate `depyty analyze` subcommand
+- Analyzing files is now done using a separate `depyty check` subcommand
 - Analysis now works on a "fully qualified" basis. Before we only checked
   top-level names of modules, which had limitiations, e.g. it did not work
   reliably for namespace packages.

@@ -1,9 +1,9 @@
 from typing import TypeAlias, cast, get_args
 
-from depyty.cli.commands.analyze import AnalyzeCommand
+from depyty.cli.commands.check import CheckCommand
 from depyty.cli.commands.env import EnvCommand
 
-SubCommand: TypeAlias = AnalyzeCommand | EnvCommand  # noqa: UP040
+SubCommand: TypeAlias = CheckCommand | EnvCommand  # noqa: UP040
 """
 A union type alias that references all existing subcommands commands.
 

@@ -3,7 +3,7 @@ import subprocess
 from io import StringIO
 from pathlib import Path
 
-from depyty.cli.commands.analyze import AnalyzeCommand
+from depyty.cli.commands.check import CheckCommand
 from depyty.reporting import ReporterName
 from src.depyty.cli.context import CliContext
 
@@ -28,14 +28,14 @@ def test_works_with_default_package(tmpdir: Path):
     )
 
     with StringIO() as buffer:
-        command = AnalyzeCommand(
+        command = CheckCommand(
             reporter=ReporterName.JSON,
             globs=[],
             python_path=None,
             stdout=buffer,
         )
 
-        AnalyzeCommand.run(command, CliContext(cwd=monorepodir, verbose=True))
+        CheckCommand.run(command, CliContext(cwd=monorepodir, verbose=True))
 
         # We expect a violation in package b, since it does not explicitly declare
         # its dependency on package a

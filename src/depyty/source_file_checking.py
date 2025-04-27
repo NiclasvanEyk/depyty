@@ -119,7 +119,7 @@ def check_source_files(
     modules_by_distribution_name: dict[str, list[PythonModule]],
 ) -> tuple[list[Violation], int]:
     violations: list[Violation] = []
-    analyzed_files = 0
+    checked_files = 0
     with ThreadPoolExecutor() as executor:
         violations_by_file = {
             file.path: executor.submit(
@@ -129,10 +129,10 @@ def check_source_files(
         }
 
         for file, future in violations_by_file.items():
-            analyzed_files += 1
+            checked_files += 1
             try:
                 violations.extend(future.result())
             except Exception as exception:
                 logging.exception(f"{file}: {exception}", exc_info=exception)
 
-    return violations, analyzed_files
+    return violations, checked_files
