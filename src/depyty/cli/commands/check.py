@@ -40,7 +40,7 @@ class CheckCommand(Command):
         )
         _ = parser.add_argument(
             "--reporter",
-            help=f"how the results should be reported. Possible values: {list(ReporterName)}",
+            help=f"how the results should be reported. Possible values: {', '.join(str(case) for case in ReporterName)}",
             default=ReporterName.CONSOLE.value,
         )
 
