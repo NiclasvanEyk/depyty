@@ -42,3 +42,39 @@ def test_works_with_default_package(tmpdir: Path):
         output = json.loads(buffer.getvalue())
         assert output[0]["context"]["distribution_name"] == "package-b"
         assert output[0]["undeclared_dependency"] == "package_a"
+
+
+def test_works_with_differing_distribution_and_package_names(tmpdir: Path):
+    # Given a monorepo with 2 packages
+    subprocess.run(["uv", "init", "my-monorepo", "--bare"], cwd=tmpdir)
+    monorepodir = tmpdir / "my-monorepo"
+
+    subprocess.run(["uv", "init", "package-a", "--package"], cwd=monorepodir)
+    subprocess.run(["uv", "init", "package-b", "--package"], cwd=monorepodir)
+
+    # We change the package name from the standard to an irregular one
+    package_b_pyproject = monorepodir / "package-b" / "pyproject.toml"
+    package_b_pyproject.write_text(
+        package_b_pyproject.read_text("utf-8").replace("package-b", "Package_B"),
+        encoding="utf-8",
+    )
+
+    # A declares a dependency on b and imports it
+    subprocess.run(["uv", "add", "package-b"], cwd=monorepodir / "package-a")
+    (monorepodir / "package-a" / "src" / "package_a" / "__init__.py").write_text(
+        "import package_b", "utf-8"
+    )
+
+    with StringIO() as buffer:
+        command = CheckCommand(
+            reporter=ReporterName.JSON,
+            globs=[],
+            python_path=None,
+            stdout=buffer,
+        )
+
+        CheckCommand.run(command, CliContext(cwd=monorepodir, verbose=True))
+
+        # We expect no violation,
+        output = json.loads(buffer.getvalue())
+        assert output == []
