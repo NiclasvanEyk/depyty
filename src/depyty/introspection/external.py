@@ -3,6 +3,7 @@ from inspect import getsource
 from subprocess import run
 
 from depyty.introspection import script as script_module
+from depyty.normalization import normalize_distribution_name
 
 
 def introspect(python_path: str) -> script_module.IntrospectionResult:
@@ -41,6 +42,8 @@ def introspect(python_path: str) -> script_module.IntrospectionResult:
 
     return script_module.IntrospectionResult(
         top_level_stdlib_module_names=top_level_stdlib_module_names,
-        distribution_names=distribution_names,
+        distribution_names=[
+            normalize_distribution_name(name) for name in distribution_names
+        ],
         path=path,
     )

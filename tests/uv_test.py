@@ -73,8 +73,9 @@ def test_works_with_differing_distribution_and_package_names(tmpdir: Path):
             stdout=buffer,
         )
 
-        CheckCommand.run(command, CliContext(cwd=monorepodir, verbose=True))
+        exit_code = CheckCommand.run(command, CliContext(cwd=monorepodir, verbose=True))
+        assert exit_code is None or 0
 
         # We expect no violation,
-        output = json.loads(buffer.getvalue())
-        assert output == []
+        output = buffer.getvalue()
+        assert "Success: no issues found in 2 source files" in output

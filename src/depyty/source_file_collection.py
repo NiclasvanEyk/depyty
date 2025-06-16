@@ -5,6 +5,7 @@ from pathlib import Path
 
 from depyty.dependencies import Dependencies
 from depyty.inspection.dist_info import PythonModule
+from depyty.normalization import normalize_distribution_name
 from depyty.pyproject import PyprojectToml
 
 
@@ -27,7 +28,7 @@ def discover_source_packages(
     for pyproject_path in source_package_project_toml_paths:
         logging.debug(f"Checking {pyproject_path}")
         pyproject = PyprojectToml.from_file(pyproject_path)
-        distribution_name = pyproject.project_name
+        distribution_name = normalize_distribution_name(pyproject.project_name)
         dependencies = Dependencies.from_pyproject_toml(pyproject)
 
         modules = modules_by_distribution_name.get(distribution_name)
